@@ -1,19 +1,20 @@
 function [I] = OTS(imgName)
-imgName
+imgName = convertStringsToChars(imgName);
 gamma = readConf('gamma');
 warning('off','images:initSize:adjustingMag');
 fin = fopen(imgName, 'r', 'b','US-ASCII');
+c = onCleanup(@()fclose(fin));
 I = fread(fin, [2048,2048], 'uint16=>uint16','b')';
 I = uint16(4095) - uint16(I);
+% perform gamma exponential brightness transform to increase contrast. The
+% original images were very dark.
 temp = double(I).^gamma;
 temp = temp * (2^16 -1)/max(temp,[],'all');
 I = uint16(temp);
 warning('on','images:initSize:adjustingMag');
-name = strcat(imgName(1:length(imgName)-3), 'tif')
-filename = 
-outFile = strcat(readConf('baseDir'),'db\Pictures\Post\',name(find(name=='\',1,'last')+1:end));
-outFile
-strcat(readConf('baseDir'),'db\Pictures\Post\')
+name = strcat(imgName(1:length(imgName)- 3), 'tif');
+slashes =  strfind(name,'\');
+outFile = strcat(readConf('baseDir'),'db\Pictures\Post\',name(slashes(end)+1:end));
 imwrite(I, outFile);
 end
 
